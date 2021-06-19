@@ -1,8 +1,10 @@
 package com.ecomm.cartservice.service;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -130,7 +132,16 @@ public class CartServiceImpl implements CartService {
     @Override
     public ResponseEntity<Cart> getCartDetailsByCartId(Long cartId) {
         Cart cartDetails = getCartDetails(cartId);
-        return new ResponseEntity<Cart>(cartDetails, HttpStatus.OK);
+        try {
+            if(Objects.nonNull(cartDetails)) {
+                return new ResponseEntity<Cart>(cartDetails, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(
+                    NOT_FOUND);
+        }
+        return null;
     }
 
 
