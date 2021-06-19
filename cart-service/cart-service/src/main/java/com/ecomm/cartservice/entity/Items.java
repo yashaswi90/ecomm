@@ -1,9 +1,9 @@
 package com.ecomm.cartservice.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,15 +15,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Items {
+public class Items implements Serializable {
+/*
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;*/
 
-
-    @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;
 
     @Id
     private long productId;
+
+
+   /* @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;*/
+
 
     private long sellerId;
     private int quantity;

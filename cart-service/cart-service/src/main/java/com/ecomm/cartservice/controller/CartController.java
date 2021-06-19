@@ -4,11 +4,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecomm.cartservice.domain.CartDto;
+import com.ecomm.cartservice.domain.UpdateCartDto;
 import com.ecomm.cartservice.entity.Cart;
 import com.ecomm.cartservice.entity.Cartentity;
 import com.ecomm.cartservice.service.CartService;
@@ -21,25 +24,28 @@ public class CartController {
 
 
     @PostMapping("/addToCart")
-    public ResponseEntity<Cartentity> addItemInCart(@RequestBody CartDto item) {
-        Optional<Long> cartId = cartService.getCartDetailsByUserId(item.getUserId());
+    public ResponseEntity<Cartentity> addOrUpdateItemInCart(@RequestBody CartDto item) {
+        Optional<Cart> cartId = cartService.getCartDetailsByUserId(item.getUserId());
         if (cartId.isPresent()) {
-            item.setCartId(cartId.get());
-            cartService.updateCartItem(item);
+            Cart cartId1 = cartId.get();
+            UpdateCartDto upda = UpdateCartDto.builder()
+                    .productId(item.getProductId())
+                    .cartId(cartId1.getCartId())
+                    .price(item.getPrice())
+                    .quantity(item.getQuantity())
+                    .sellerId(item.getSellerId()).build();
+            cartService.updateCartItem(upda);
         } else {
             cartService.addItemToCart(item);
         }
         return null;
     }
 
-
-    @PostMapping("/addToCartOne")
-    public ResponseEntity<Cart> addItemToCart(@RequestBody CartDto item) {
-
-        Optional<Long> cartId = cartService.getCartDetailsByUserId(item.getUserId());
-        if (cartId.isPresent()) {
-            return cartService.addItemToCart(item);
-        }
-        return null;
+    @GetMapping("/getCart/{cartId}")
+    public ResponseEntity<Cart> getCartDetails(@PathVariable Long cartId) {
+        return cartService.getCartDetailsByCartId(cartId);
     }
+
+
+
 }

@@ -1,10 +1,6 @@
 package com.ecomm.cartservice.domain;
 
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartDto {
-//        private long cartId;
+public class UpdateCartDto {
+        private long cartId;
 
 
     private String userId;

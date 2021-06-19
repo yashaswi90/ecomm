@@ -14,5 +14,5 @@ import com.ecomm.cartservice.entity.Cartentity;
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
 
-    Optional<Long> getByUserId(String userId);
+    Optional<Cart> getByUserId(String userId);
 }
