@@ -4,7 +4,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -98,56 +97,64 @@ public class CartServiceImpl implements CartService {
     public ResponseEntity<Cart> updateCartItem(UpdateCartDto item) {
 
         try {
-            Cart cart = getCartDetails(item.getCartId());
-            for (Items items : cart.getItems()) {
-                log.info("Calling get items....");
+            Cart cartItems = null;
+            Optional<Cart> cart = getCartDetails(item.getCartId());
 
-                if (items.getProductId() == item.getProductId()) {
+            if (cart.isPresent()) {
+                cartItems = cart.get();
+                for (Items items : cartItems.getItems()) {
 
-                    log.info("Inside Check");
-                    int newQuantity = items.getQuantity() + item.getQuantity();
 
-                    items.setQuantity(newQuantity);
-                } else {
-                    log.info("Outsside check ");
-                    Items itemAdd = Items.builder().productId(item.getProductId())
-                            .sellerId(item.getSellerId())
-                            .quantity(item.getQuantity())
-                            .price(item.getPrice())
-                            .build();
-                    cart.getItems().add(itemAdd);
+                    log.info("Calling get items....");
+
+                    if (items.getProductId() == item.getProductId()) {
+
+                        log.info("Inside Check");
+                        int newQuantity = items.getQuantity() + item.getQuantity();
+
+                        items.setQuantity(newQuantity);
+                    } else {
+                        log.info("Outsside check ");
+                        Items itemAdd = Items.builder().productId(item.getProductId())
+                                .sellerId(item.getSellerId())
+                                .quantity(item.getQuantity())
+                                .price(item.getPrice())
+                                .build();
+                        cartItems.getItems().add(itemAdd);
+                    }
+
                 }
 
             }
-            Cart save = cartRepository.save(cart);
-
+            Cart save = cartRepository.save(cartItems);
             return new ResponseEntity<Cart>(save, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(
                     INTERNAL_SERVER_ERROR);
         }
+
     }
 
     @Override
     public ResponseEntity<Cart> getCartDetailsByCartId(Long cartId) {
-        Cart cartDetails = getCartDetails(cartId);
+        Optional<Cart> cartDetails = getCartDetails(cartId);
         try {
-            if(Objects.nonNull(cartDetails)) {
-                return new ResponseEntity<Cart>(cartDetails, HttpStatus.OK);
+            if (cartDetails.isPresent()) {
+                return new ResponseEntity<Cart>(cartDetails.get(), HttpStatus.OK);
+            } else {
+                throw new RuntimeException("Cart is Empty");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(
-                    NOT_FOUND);
+            return new ResponseEntity<>(NOT_FOUND);
         }
-        return null;
     }
 
 
-    Cart getCartDetails(Long cartId) {
-        Cart existingCart = cartRepository.getById(cartId);
-        return existingCart;
+    Optional<Cart> getCartDetails(Long cartId) {
+        return cartRepository.findById(cartId);
 
     }
+
+
 }
