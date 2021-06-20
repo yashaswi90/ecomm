@@ -5,8 +5,6 @@ import static com.ecomm.ordermanagementservice.constant.UrlConstants.DELETE_CART
 import static com.ecomm.ordermanagementservice.constant.UrlConstants.GET_CART_DETAIL;
 import static com.ecomm.ordermanagementservice.constant.UrlConstants.INVENTORY_DECREASE_QUANTITY;
 import static com.ecomm.ordermanagementservice.constant.UrlConstants.USER_ID;
-import static com.ecomm.ordermanagementservice.enumConstant.OrderStatus.PAYMENT_DONE;
-import static com.ecomm.ordermanagementservice.enumConstant.OrderStatus.PAYMENT_EXPECTED;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -57,6 +55,13 @@ public class OrderServiceImpl implements OrderService {
         deleteCart(orderDto);
 
         return responseDeliveryDate;
+    }
+
+    @Override
+    public Order getOrder(Long orderId) {
+
+        Order order = orderRepository.getById(orderId);
+        return order;
     }
 
     private String proceedPayment(Order orderResponse) {

@@ -34,6 +34,7 @@ public class Item {
 
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
 

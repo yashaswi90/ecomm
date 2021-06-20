@@ -63,7 +63,7 @@ public class CartController {
 
 
     @DeleteMapping("/delete")
-    public void getCart(@RequestParam Long cartId, @RequestParam String userId) {
+    public void deleteCart(@RequestParam Long cartId, @RequestParam String userId) {
 
         cartService.deleteCart(cartId, userId);
     }
