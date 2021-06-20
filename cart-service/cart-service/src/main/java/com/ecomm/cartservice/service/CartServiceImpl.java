@@ -151,10 +151,34 @@ public class CartServiceImpl implements CartService {
     }
 
 
+    @Override
+    public void deleteCart(Long cartId) {
+        cartRepository.deleteById(cartId);
+    }
+
+    @Override
+    public void deleteCart(Long cartId, String userId) {
+         cartRepository.deleteById(cartId);
+
+    }
+
+
+    @Override
+    public Cart getCartDetailsByCartId(String cartId, String userId) {
+        Long cartId1 = Long.valueOf(cartId);
+        Cart byCartIdAndUserId = cartRepository.findByCartIdAndUserId(cartId1, userId);
+        return new ResponseEntity<Cart>(byCartIdAndUserId, HttpStatus.OK).getBody();
+//        return byCartIdAndUserId;
+    }
+
+
     Optional<Cart> getCartDetails(Long cartId) {
         return cartRepository.findById(cartId);
 
     }
+
+
+
 
 
 }
