@@ -23,7 +23,6 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
-
     @PostMapping(value = "/products")
     private ResponseEntity<Product> addProduct(@RequestBody Product product) {
         if (product != null) {
@@ -60,7 +59,7 @@ public class ProductController {
     }
 
 
-    @GetMapping(value = "/products", params = "category")
+    @GetMapping(value = "/products/category", params = "category")
     public ResponseEntity<List<Product>> getAllProductByCategory(@RequestParam("category") String category) {
         List<Product> products = productService.getAllProductByCategory(category);
         if (!products.isEmpty()) {
@@ -73,7 +72,7 @@ public class ProductController {
     }
 
 
-    @GetMapping(value = "/products", params = "name")
+    @GetMapping(value = "/products/name", params = "name")
     public ResponseEntity<List<Product>> getAllProductsByName(@RequestParam("name") String name) {
         List<Product> products = productService.getAllProductsByName(name);
         if (!products.isEmpty()) {

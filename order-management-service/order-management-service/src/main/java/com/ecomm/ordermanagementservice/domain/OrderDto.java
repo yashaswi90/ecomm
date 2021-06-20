@@ -14,13 +14,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDto {
-    private long orderId;
+//    private long orderId;
     private long cartId;
     private String userId;
-    private LocalDate orderedDate;
-    private String status;
     private String address;
-    private BigDecimal total;
+
+    private PaymentDetail paymentDetail;
+//    private LocalDate orderedDate;
+//    private String status;
+//    private String address;
+//    private BigDecimal total;
 
 
 }

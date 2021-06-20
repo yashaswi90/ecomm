@@ -22,8 +22,8 @@ public class OrderController {
     @PostMapping("/createOrder")
     public ResponseEntity createOrder(@RequestBody OrderDto orderDto) {
         try {
-            Order order = orderService.createOrder(orderDto);
-            return new ResponseEntity<Order>(
+            String order = orderService.createOrder(orderDto);
+            return new ResponseEntity<>(
                     order,
                     HttpStatus.CREATED);
         } catch (Exception ex) {
@@ -33,4 +33,7 @@ public class OrderController {
 
         }
     }
+
+
+
 }
