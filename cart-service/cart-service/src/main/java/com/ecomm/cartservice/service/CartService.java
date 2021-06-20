@@ -29,5 +29,4 @@ public interface CartService {
 
     void deleteCart(Long cartId, String userId);
 
-//    void deleteItemFromCart(String cartId, Long productId);
 }

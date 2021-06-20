@@ -9,7 +9,10 @@ import com.ecomm.inventoryservice.entity.Inventory;
 import com.ecomm.inventoryservice.entity.ProductSellerKey;
 import com.ecomm.inventoryservice.repository.InventoryRepository;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
@@ -26,7 +29,8 @@ public class InventoryServiceImpl implements InventoryService {
         } else {
             newQuantity = inventory.getQuantity();
         }
-        inventoryRepository.save(Inventory.builder().id(id).quantity(newQuantity).build());
+        Inventory updatedInventory = Inventory.builder().id(id).quantity(newQuantity).build();
+        inventoryRepository.save(updatedInventory);
     }
 
     @Override
@@ -35,7 +39,7 @@ public class InventoryServiceImpl implements InventoryService {
         int deletedQuantity = 0;
         Optional<Inventory> inventoryPresent = inventoryRepository.findById(id);
         if (inventoryPresent.isPresent()) {
-            deletedQuantity = Math.abs( inventoryPresent.get().getQuantity() - inventory.getQuantity());
+            deletedQuantity = Math.abs(inventoryPresent.get().getQuantity() - inventory.getQuantity());
 
         }
         inventoryRepository.save(Inventory.builder().id(id).quantity(deletedQuantity).build());

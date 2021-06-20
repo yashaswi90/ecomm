@@ -13,7 +13,6 @@ import com.ecomm.cartservice.entity.Cart;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-
     Optional<Cart> getByUserId(String userId);
 
     @Query("SELECT e from Cart e where e.cartId=:cartId and e.userId =:userId")

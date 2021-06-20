@@ -16,20 +16,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Items implements Serializable {
-/*
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;*/
-
-
     @Id
     private long productId;
-
-
-   /* @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;*/
-
 
     private long sellerId;
     private int quantity;

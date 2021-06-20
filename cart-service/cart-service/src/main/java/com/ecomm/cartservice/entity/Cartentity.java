@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class Cartentity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long cartid;

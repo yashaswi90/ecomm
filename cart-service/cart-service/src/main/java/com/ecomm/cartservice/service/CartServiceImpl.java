@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.ecomm.cartservice.domain.CartDto;
 import com.ecomm.cartservice.domain.UpdateCartDto;
@@ -19,74 +20,34 @@ import com.ecomm.cartservice.entity.Cart;
 import com.ecomm.cartservice.entity.Items;
 import com.ecomm.cartservice.repository.CartRepository;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional
-
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 public class CartServiceImpl implements CartService {
-
 
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    RestTemplate restTemplate;
+
     @Override
     public ResponseEntity<Cart> addItemToCart(CartDto item) {
+        Set<Items> itemsSet = createItemSet(item);
+        Cart cartEntity = Cart.builder().userId(item.getUserId())
+                .items(itemsSet).build();
+        Cart save = cartRepository.save(cartEntity);
 
-        try {
-            Items items = Items.builder().price(item.getPrice())
-                    .quantity(item.getQuantity())
-                    .sellerId(item.getSellerId())
-                    .productId(item.getProductId()).build();
-            Set<Items> itemsSet = new HashSet<>();
-            itemsSet.add(items);
-            Cart cartEntity = Cart.builder().userId(item.getUserId())
-                    .items(itemsSet).build();
-
-
-           /* Cartentity cartEntity = Cartentity.builder().userid(item.getUserId())
-                    .sellerId(item.getSellerId())
-                    .price(item.getPrice())
-                    .productId(item.getProductId())
-                    .quantity(item.getQuantity()).build();*/
-
-            Cart save = cartRepository.save(cartEntity);
-
-            ResponseEntity<Cart> cartResponseEntity = new ResponseEntity<>(save, HttpStatus.CREATED);
-            return cartResponseEntity;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(
-                    INTERNAL_SERVER_ERROR);
-        }
+        ResponseEntity<Cart> cartResponseEntity = new ResponseEntity<>(save, HttpStatus.CREATED);
+        return cartResponseEntity;
     }
 
-   /* @Override
-    public ResponseEntity<Cartentity> addItemToCart(CartDetails item) {
-        return null;
-    }*/
-
-
-    /*@Override
-    public ResponseEntity<Cartentity> addItemToCart(CartDto item) {
-
-
-        try {
-            Cartentity cartEntity = Cartentity.builder().userid(item.getUserId())
-                    .sellerId(item.getSellerId())
-                    .price(item.getPrice())
-                    .productId(item.getProductId())
-                    .quantity(item.getQuantity()).build();
-
-            Cartentity entity = cartRepository.save(cartEntity);
-            return new ResponseEntity<>(entity, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(
-                    INTERNAL_SERVER_ERROR);
-        }
-    }*/
 
     @Override
     public Optional<Cart> getCartDetailsByUserId(String userId) {
@@ -99,34 +60,7 @@ public class CartServiceImpl implements CartService {
         try {
             Cart cartItems = null;
             Optional<Cart> cart = getCartDetails(item.getCartId());
-
-            if (cart.isPresent()) {
-                cartItems = cart.get();
-                for (Items items : cartItems.getItems()) {
-
-
-                    log.info("Calling get items....");
-
-                    if (items.getProductId() == item.getProductId()) {
-
-                        log.info("Inside Check");
-                        int newQuantity = items.getQuantity() + item.getQuantity();
-
-                        items.setQuantity(newQuantity);
-                    } else {
-                        log.info("Outsside check ");
-                        Items itemAdd = Items.builder().productId(item.getProductId())
-                                .sellerId(item.getSellerId())
-                                .quantity(item.getQuantity())
-                                .price(item.getPrice())
-                                .build();
-                        cartItems.getItems().add(itemAdd);
-                    }
-
-                }
-
-            }
-            Cart save = cartRepository.save(cartItems);
+            Cart save = saveItemToCart(item, cartItems, cart);
             return new ResponseEntity<Cart>(save, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,6 +68,21 @@ public class CartServiceImpl implements CartService {
                     INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    private Cart saveItemToCart(UpdateCartDto item, Cart cartItems, Optional<Cart> cart) {
+        if (cart.isPresent()) {
+            cartItems = cart.get();
+            for (Items items : cartItems.getItems()) {
+                if (items.getProductId() == item.getProductId()) {
+                    int newQuantity = items.getQuantity() + item.getQuantity();
+                    items.setQuantity(newQuantity);
+                } else {
+                    addItemToCart(item, cartItems);
+                }
+            }
+        }
+        return cartRepository.save(cartItems);
     }
 
     @Override
@@ -150,7 +99,6 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-
     @Override
     public void deleteCart(Long cartId) {
         cartRepository.deleteById(cartId);
@@ -158,17 +106,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void deleteCart(Long cartId, String userId) {
-         cartRepository.deleteById(cartId);
+        cartRepository.deleteById(cartId);
 
     }
-
 
     @Override
     public Cart getCartDetailsByCartId(String cartId, String userId) {
         Long cartId1 = Long.valueOf(cartId);
         Cart byCartIdAndUserId = cartRepository.findByCartIdAndUserId(cartId1, userId);
         return new ResponseEntity<Cart>(byCartIdAndUserId, HttpStatus.OK).getBody();
-//        return byCartIdAndUserId;
     }
 
 
@@ -178,7 +124,22 @@ public class CartServiceImpl implements CartService {
     }
 
 
+    private Set<Items> createItemSet(CartDto item) {
+        Items items = Items.builder().price(item.getPrice())
+                .quantity(item.getQuantity())
+                .sellerId(item.getSellerId())
+                .productId(item.getProductId()).build();
+        Set<Items> itemsSet = new HashSet<>();
+        itemsSet.add(items);
+        return itemsSet;
+    }
 
-
-
+    private void addItemToCart(UpdateCartDto item, Cart cartItems) {
+        Items itemAdd = Items.builder().productId(item.getProductId())
+                .sellerId(item.getSellerId())
+                .quantity(item.getQuantity())
+                .price(item.getPrice())
+                .build();
+        cartItems.getItems().add(itemAdd);
+    }
 }
